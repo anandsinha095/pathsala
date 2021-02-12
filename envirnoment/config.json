@@ -1,0 +1,13 @@
+{
+  "dev": {
+    "config_id": "dev",
+    "app_name": "School CRM",
+    "app_desc": "Pathsala",
+    "json_indentation": 4,
+    "database": "mongodb://localhost:27017/school",
+    "fontend_host": "localhost:4200",
+    "host": "localhost:5002",
+    "nodeMailerEmail": "email.new.tester2014@gmail.com",
+    "nodeMailerPass": "maiplzlmrjfmhara"
+  }
+}
