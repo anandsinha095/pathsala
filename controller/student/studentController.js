@@ -1,4 +1,5 @@
 import studentModel from '../../model/student/students'/* To Create user */
+import classesModel from '../../model/classes/classes'/* To Create user */
 import userModel from '../../model/user/user'/* To Create user */
 import { __esModule } from '@babel/register/lib/node';
 import { responseHandler } from '../../common/response'
@@ -12,8 +13,8 @@ var fs = require('fs');
 
 
 const signUp = async (req, res) => {
-    const { firstName, lastName, email, phoneNumber, dob, gender, classId, fatherFirstName, fatherLastName, montherFirstName, montherLastName, fatherOccupation, motherOccupation, addressOne, addressTwo, country, state, city, zipcode} = req.body; // destructuring 
-    if (!firstName || !lastName || !email || !phoneNumber || !dob || !gender || !classId  || !fatherFirstName || !fatherLastName || !montherFirstName  || !montherLastName || !fatherOccupation || !addressOne || !country || !state || !city || !zipcode){ 
+    const { firstName, lastName, email, phoneNumber, alternetPhoneNumber, dob, gender, classId, fatherFirstName, fatherLastName, montherFirstName, montherLastName, fatherOccupation, motherOccupation, addressOne, addressTwo, city, zipcode} = req.body; // destructuring 
+    if (!firstName || !lastName || !email || !phoneNumber || !dob || !gender || !classId  || !fatherFirstName || !fatherLastName || !montherFirstName  || !montherLastName || !fatherOccupation || !addressOne || !city || !zipcode){ 
         return responseHandler(res, 400, "Bad request")
     }
     try {
@@ -29,6 +30,7 @@ const signUp = async (req, res) => {
         req.body.emailVerified = true;
         let lastUser=  await studentModel.find({}).sort({_id:-1}).limit(1)
         req.body.userId = lastUser.length > 0 ? parseFloat(lastUser[0].userId) + 1 : 1001;
+        req.body.username = "Era-2020-"+req.body.userId
         let result = await studentModel.create(req.body) /* create user object */
         let token = await createJwt({ userId: result._id}) /* generate jwt */
         /* mail sending process */
@@ -63,12 +65,21 @@ const studentList = async (req, res) => {
 
     try {
         let info = await verifyJwtToken(req, res)
-        console.log('info', info)
+        let classes =  await classesModel.find({ status: 1}).sort({createdAt:1})
         let user = await userModel.findById({ _id: info }, { __v: 0, password: 0, createdAt: 0, updatedAt: 0})
         if(!user) return responseHandler(res, 400, "Bad Request.")
         else{
+            let students =[];
             let result =  await studentModel.find({ status: 1}).sort({createdAt: -1})
-            return responseHandler(res, 200, "OK", result)
+            result.forEach(async result => {
+                classes.forEach(async ele =>{
+                    if(ele._id.toString() == result.classId.toString()){
+                        students.push({ result: result, classes: ele.name })
+                    }
+                   
+                })           
+             })
+            return responseHandler(res, 200, "OK", students)
         }       
     }
     catch (e) { return responseHandler(res, 500, "Internal Server Error.", e) }

@@ -33,7 +33,7 @@ const addClass = async (req, res) => {
             let user = await userModel.findById({ _id: info }, { __v: 0, password: 0, createdAt: 0, updatedAt: 0})
             if(!user) return responseHandler(res, 400, "Bad Request.")
             else{
-                let result =  await classesModel.find({ status: 1}).sort({createdAt: -1})
+                let result =  await classesModel.find({ status: 1}).sort({createdAt:1})
                     return responseHandler(res, 200, "OK", result)
             }       
         }
