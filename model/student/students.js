@@ -1,3 +1,4 @@
+import bodyParser from 'body-parser';
 import { Schema, model } from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate';
 let students = Schema({
@@ -5,7 +6,7 @@ let students = Schema({
     username:{ type: String, trim: true },
     firstName: { type: String, trim: true },
     lastName: { type: String, trim: true },
-    email: { type: String, trim: true, lowercase: true, unique: true, required: 'Email address is required'},
+    email: { type: String, trim: true, lowercase: true},
     password: { type: String, required: 'Password is required.', trim: true },
     gender: { type: Boolean, trim: true },
     dob: { type: Date, trim: true },
@@ -25,6 +26,7 @@ let students = Schema({
     city: { type: String, trim: true },
     zipcode: { type: String, trim: true },
     validateToken: { type: String, trim: true },
+    isActive:{type:Boolean, trim: false},
     status: { type: Boolean, default: true },
     emailVerified: { type: Boolean, default: false },
     profilePicture:{type: String, trim:true},
