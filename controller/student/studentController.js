@@ -18,24 +18,27 @@ const signUp = async (req, res) => {
         return responseHandler(res, 400, "Bad request")
     }
     try {
-        let check_email_exist = await studentModel.findOne({ email: email })
-        if (check_email_exist) return responseHandler(res, 403, "email already exist")
-         /* 1: Admin // 2: Employee // 3:Customer //4: production head*/
+        let info = await verifyJwtToken(req, res)
+        let user = await userModel.findById({ _id: info }, { __v: 0, password: 0, createdAt: 0, updatedAt: 0})
+        if(!user) return responseHandler(res, 400, "Bad Request.")
+        let check_student_exist = await studentModel.findOne({ firstName: firstName, lastName:lastName, fatherFirstName:fatherFirstName, fatherLastName:fatherLastName})
+        if (check_student_exist) return responseHandler(res, 403, "Student already exist")
+        /* 1: Admin // 2: Employee // 3:Customer //4: production head*/
         let plainPassword = randomstring.generate({
             length: 8,
             charset: 'alphanumeric'
         });
         req.body.password =await bcrypt(plainPassword) 
-        req.body.status = true;
+        req.body.isActive = user.roleId == 1 ? true : false  
         req.body.emailVerified = true;
         let lastUser=  await studentModel.find({}).sort({_id:-1}).limit(1)
         req.body.userId = lastUser.length > 0 ? parseFloat(lastUser[0].userId) + 1 : 1001;
-        req.body.username = "Era-2020-"+req.body.userId
+        req.body.username = "Era-2021-"+req.body.userId
         let result = await studentModel.create(req.body) /* create user object */
         let token = await createJwt({ userId: result._id}) /* generate jwt */
         /* mail sending process */
-       let link = '<html> <body> <div bgcolor="#f3f3f3" style="background-color:#f3f3f3"> <table width="650" bgcolor="#ffffff" border="0" align="center" cellpadding="0" cellspacing="0" style="color:#000;font-family:Lato,Helvetica Neue,Helvetica,Arial,sans-serif;"> <tbody> <tr> <td height="30" bgcolor="#f3f3f3"></td></tr><tr> <td height="102" align="center" style="border-bottom:1px solid #eaeaea;"> <img src="http://'+host+'/global_assets/images/logo.png" style="width:65px" alt="Golden Era English School" class="CToWUd"> </td></tr><tr> <td valign="top"> <table width="100%" border="0" cellpadding="30" cellspacing="0" style="font-size:14px"> <tbody> <tr> <td> <div> <p style="font-size:16px">Dear Concern,</p><div style="color:#333;font-size:14px"><p>Your account is created with Golden Era English School. Use below credential to login. </p><p>Link: '+host+ '</p> <p>Username: '+ email +'</p><p>Password: '+ plainPassword +'</p><p>Mail : info@goldeneraenglishschool.com.</p><p>The Golden Era English School Team </p></div></div></td></tr></tbody> </table> </td></tr><tr> <td height="40" align="center" valign="bottom" style="font-size:12px;color:#999"> © 202 Golden Era English School. All Rights Reserved. </td></tr><tr> <td height="30"></td></tr><tr> <td height="30" bgcolor="#f3f3f3"></td></tr></tbody> </table> </div></body></html>'
-        sendMail(email, "[Golden Era English School] Confirm Your Registration From " + " " + new Date() + "", "", link) /* verification mail send */
+       let link = '<html> <body> <div bgcolor="#f3f3f3" style="background-color:#f3f3f3"> <table width="650" bgcolor="#ffffff" border="0" align="center" cellpadding="0" cellspacing="0" style="color:#000;font-family:Lato,Helvetica Neue,Helvetica,Arial,sans-serif;"> <tbody> <tr> <td height="30" bgcolor="#f3f3f3"></td></tr><tr> <td height="102" align="center" style="border-bottom:1px solid #eaeaea;"> <img src="http://'+host+'/assets/img/logo1.png" style="width:65px" alt="Golden Era English School" class="CToWUd"> </td></tr><tr> <td valign="top"> <table width="100%" border="0" cellpadding="30" cellspacing="0" style="font-size:14px"> <tbody> <tr> <td> <div> <p style="font-size:16px">Dear Concern,</p><div style="color:#333;font-size:14px"><p>Your account is created with Golden Era English School. Use below credential to login. </p><p>Link: '+host+ '<p>Student First Name: '+ req.body.firstName +'</p><p>Student Last Name: '+ req.body.lastName +'</p></p> <p>Username: '+ req.body.username +'</p><p>Password: '+ plainPassword +'</p><p>Mail : info@goldeneraenglishschool.com.</p><p>The Golden Era English School Team </p></div></div></td></tr></tbody> </table> </td></tr><tr> <td height="40" align="center" valign="bottom" style="font-size:12px;color:#999"> © 202 Golden Era English School. All Rights Reserved. </td></tr><tr> <td height="30"></td></tr><tr> <td height="30" bgcolor="#f3f3f3"></td></tr></tbody> </table> </div></body></html>'
+        sendMail("geesbarbigha@gmail.com", "[Golden Era English School] New student registered at " + " " + new Date() + "", "", link) /* verification mail send */
         return responseHandler(res, 200, "Student successfully registered.")
     }
     catch (e) {
@@ -70,7 +73,7 @@ const studentList = async (req, res) => {
         if(!user) return responseHandler(res, 400, "Bad Request.")
         else{
             let students =[];
-            let result =  await studentModel.find({ status: 1}).sort({createdAt: -1})
+            let result =  await studentModel.find().sort({createdAt: -1})
             result.forEach(async result => {
                 classes.forEach(async ele =>{
                     if(ele._id.toString() == result.classId.toString()){
