@@ -14,7 +14,7 @@ var fs = require('fs');
 
 const signUp = async (req, res) => {
     const { firstName, lastName, email, phoneNumber, alternetPhoneNumber, dob, gender, classId, fatherFirstName, fatherLastName, montherFirstName, montherLastName, fatherOccupation, motherOccupation, addressOne, addressTwo, city, zipcode} = req.body; // destructuring 
-    if (!firstName || !lastName || !email || !phoneNumber || !dob || !gender || !classId  || !fatherFirstName || !fatherLastName || !montherFirstName  || !montherLastName || !fatherOccupation || !addressOne || !city || !zipcode){ 
+    if (!firstName || !lastName || !phoneNumber || !dob || !gender || !classId  || !fatherFirstName || !fatherLastName || !montherFirstName  || !montherLastName || !fatherOccupation || !addressOne || !city || !zipcode){ 
         return responseHandler(res, 400, "Bad request")
     }
     try {
