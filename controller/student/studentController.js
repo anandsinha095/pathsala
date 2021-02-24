@@ -88,9 +88,75 @@ const studentList = async (req, res) => {
     catch (e) { return responseHandler(res, 500, "Internal Server Error.", e) }
 } 
 
+/**************************** Toggle Student  ***********************/
+const studentToggle = async (req, res) => {
+    const { userId } = req.body; // destructuring 
+    if (!userId) {
+        return responseHandler(res, 400, "Bad request")
+    }
+    var result =  await studentModel.findOne({ userId: userId }, { __v: 0, password: 0, createdAt: 0, updatedAt: 0})
+    if (!result) return responseHandler(res, 404, "Student doesn't Exist.")
+     try {
+        let info = await verifyJwtToken(req, res)
+        let user = await userModel.findById({ _id: info }, { __v: 0, password: 0, createdAt: 0, updatedAt: 0})
+        if(!user)
+        return responseHandler(res, 400, "Bad request")
+        let mainUser = await studentModel.findOneAndUpdate({ userId: userId }, {status: result.status==1? 0 : 1})
+        if(mainUser.status == 0){
+        let link = '<html> <body> <div bgcolor="#f3f3f3" style="background-color:#f3f3f3"> <table width="650" bgcolor="#ffffff" border="0" align="center" cellpadding="0" cellspacing="0" style="color:#000;font-family:Lato,Helvetica Neue,Helvetica,Arial,sans-serif;"> <tbody> <tr> <td height="30" bgcolor="#f3f3f3"></td></tr><tr> <td height="102" align="center" style="border-bottom:1px solid #eaeaea;"> <img src="http://'+host+'/global_assets/images/logo.png" style="width:65px" alt="Goldern Era Engilsh School" class="CToWUd"> </td></tr><tr> <td valign="top"> <table width="100%" border="0" cellpadding="30" cellspacing="0" style="font-size:14px"> <tbody> <tr> <td> <div> <p style="font-size:16px">Dear '+mainUser.firstName+' '+ mainUser.lastName+' ,</p><div style="color:#333;font-size:14px"> <p style="color:#333">You account is blocked ! Please contact to admin </p><p>Mail : info@golderneraengilshschool.com.</p><p>Goldern Era Engilsh School Team </p></div></div></td></tr></tbody> </table> </td></tr><tr> <td height="40" align="center" valign="bottom" style="font-size:12px;color:#999"> © 2020 Goldern Era Engilsh School. All Rights Reserved. </td></tr><tr> <td height="30"></td></tr><tr> <td height="30" bgcolor="#f3f3f3"></td></tr></tbody> </table> </div></body></html>'
+        if(mainUser.email)
+        sendMail(mainUser.email, "Your Goldern Era Engilsh School account status updated", null, link)
+        return responseHandler(res, 200, "Student account active")  
+            }
+        else if(mainUser.status == 1){
+        let link = '<html> <body> <div bgcolor="#f3f3f3" style="background-color:#f3f3f3"> <table width="650" bgcolor="#ffffff" border="0" align="center" cellpadding="0" cellspacing="0" style="color:#000;font-family:Lato,Helvetica Neue,Helvetica,Arial,sans-serif;"> <tbody> <tr> <td height="30" bgcolor="#f3f3f3"></td></tr><tr> <td height="102" align="center" style="border-bottom:1px solid #eaeaea;"> <img src="http://'+host+'/global_assets/images/logo.png" style="width:65px" alt="Goldern Era Engilsh School" class="CToWUd"> </td></tr><tr> <td valign="top"> <table width="100%" border="0" cellpadding="30" cellspacing="0" style="font-size:14px"> <tbody> <tr> <td> <div> <p style="font-size:16px">Dear '+mainUser.firstName+' '+ mainUser.lastName+',</p><div style="color:#333;font-size:14px"> <p style="color:#333">You account is unblocked ! </p><p>Mail : info@golderneraengilshschool.com.</p><p>Goldern Era Engilsh School Team </p></div></div></td></tr></tbody> </table> </td></tr><tr> <td height="40" align="center" valign="bottom" style="font-size:12px;color:#999"> © 2020 Goldern Era Engilsh School. All Rights Reserved. </td></tr><tr> <td height="30"></td></tr><tr> <td height="30" bgcolor="#f3f3f3"></td></tr></tbody> </table> </div></body></html>'
+        if(mainUser.email)
+        sendMail(mainUser.email, "Your Goldern Era Engilsh School account status updated", null, link)  
+        return responseHandler(res, 200, "Student account Inactive")        
+        }
+                 
+    }
+    catch (e) { return responseHandler(res, 500, "Internal Server Error.", e) }
+  }
+ 
+/********************************Active deactive Student  ********************/
+const studentIsActive = async (req, res) => {
+    const { userId } = req.body; // destructuring 
+    if (!userId) {
+        return responseHandler(res, 400, "Bad request")
+    }
+    var result =  await studentModel.findOne({ userId: userId }, { __v: 0, password: 0, createdAt: 0, updatedAt: 0})
+    if (!result) return responseHandler(res, 404, "Student doesn't Exist.")
+    try {
+        let info = await verifyJwtToken(req, res)
+        let user = await userModel.findById({ _id: info }, { __v: 0, password: 0, createdAt: 0, updatedAt: 0})
+        if(!user)
+        return responseHandler(res, 400, "Bad request")
+        if(user.roleId !=1)
+        return responseHandler(res, 404, "You are not authorized to change the status")
+        let mainUser = await studentModel.findOneAndUpdate({ userId: userId }, {isActive: result.isActive==1? 0 : 1})
+        if(mainUser.isActive == 0){
+        let link = '<html> <body> <div bgcolor="#f3f3f3" style="background-color:#f3f3f3"> <table width="650" bgcolor="#ffffff" border="0" align="center" cellpadding="0" cellspacing="0" style="color:#000;font-family:Lato,Helvetica Neue,Helvetica,Arial,sans-serif;"> <tbody> <tr> <td height="30" bgcolor="#f3f3f3"></td></tr><tr> <td height="102" align="center" style="border-bottom:1px solid #eaeaea;"> <img src="http://'+host+'/global_assets/images/logo.png" style="width:65px" alt="Caremx" class="CToWUd"> </td></tr><tr> <td valign="top"> <table width="100%" border="0" cellpadding="30" cellspacing="0" style="font-size:14px"> <tbody> <tr> <td> <div> <p style="font-size:16px">Dear '+mainUser.firstName+' '+ mainUser.lastName+' ,</p><div style="color:#333;font-size:14px"> <p style="color:#333">You account is active ! Please contact to admin </p><p>Mail : info@golderneraengilshschool.com.</p><p>Goldern Era Engilsh School  Team </p></div></div></td></tr></tbody> </table> </td></tr><tr> <td height="40" align="center" valign="bottom" style="font-size:12px;color:#999"> © 2020 Caremx. All Rights Reserved. </td></tr><tr> <td height="30"></td></tr><tr> <td height="30" bgcolor="#f3f3f3"></td></tr></tbody> </table> </div></body></html>'
+        if(mainUser.email)
+        sendMail(mainUser.email, "Your Goldern Era Engilsh School account status updated", null, link)
+        return responseHandler(res, 200, "Student account approved") 
+            }
+        else if(mainUser.isActive == 1){
+        let link = '<html> <body> <div bgcolor="#f3f3f3" style="background-color:#f3f3f3"> <table width="650" bgcolor="#ffffff" border="0" align="center" cellpadding="0" cellspacing="0" style="color:#000;font-family:Lato,Helvetica Neue,Helvetica,Arial,sans-serif;"> <tbody> <tr> <td height="30" bgcolor="#f3f3f3"></td></tr><tr> <td height="102" align="center" style="border-bottom:1px solid #eaeaea;"> <img src="http://'+host+'/global_assets/images/logo.png" style="width:65px" alt="Caremx" class="CToWUd"> </td></tr><tr> <td valign="top"> <table width="100%" border="0" cellpadding="30" cellspacing="0" style="font-size:14px"> <tbody> <tr> <td> <div> <p style="font-size:16px">Dear '+mainUser.firstName+' '+ mainUser.lastName+',</p><div style="color:#333;font-size:14px"> <p style="color:#333">You account is deactiveted ! </p><p>Mail : info@golderneraengilshschool.com.</p><p>Goldern Era Engilsh School  Team </p></div></div></td></tr></tbody> </table> </td></tr><tr> <td height="40" align="center" valign="bottom" style="font-size:12px;color:#999"> © 2020 Caremx. All Rights Reserved. </td></tr><tr> <td height="30"></td></tr><tr> <td height="30" bgcolor="#f3f3f3"></td></tr></tbody> </table> </div></body></html>'
+        if(mainUser.email)
+        sendMail(mainUser.email, "Your Goldern Era Engilsh School account status updated", null, link)     
+        return responseHandler(res, 200, "Student account disapproved")     
+        }
+                 
+    }
+    catch (e) { return responseHandler(res, 500, "Internal Server Error.", e) }
+  }
+
 module.exports = {
     signUp: signUp,
     //signIn:signIn
     studentInfo:studentInfo,
-    studentList:studentList
+    studentList:studentList,
+    studentToggle: studentToggle,
+    studentIsActive:studentIsActive
 }

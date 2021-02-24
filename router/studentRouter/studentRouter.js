@@ -1,5 +1,5 @@
 const studentRoute= require('express').Router();
-import {signUp ,studentInfo, studentList} from '../../controller/student/studentController';
+import {signUp ,studentInfo, studentList, studentIsActive, studentToggle} from '../../controller/student/studentController';
 import { verifyEmail, resendMail_For_Verify_Email } from '../../controller/common/mailController';
 import { country, state, city } from '../../controller/customer/countryStateCityController';
 import { forgotPassword, checkResetLink, resetPassword, changePassword } from '../../controller/common/passwordController'
@@ -37,5 +37,7 @@ studentRoute.put('/changePassword',changePassword)
 studentRoute.post('/forgotPassword', forgotPassword)
 studentRoute.get('/checkResetLink/:token', checkResetLink)
 studentRoute.post('/resetPassword/:token', resetPassword)
+studentRoute.put('/studentIsActive', verifyJwt, studentIsActive)
+studentRoute.put('/studentToggle', verifyJwt, studentToggle)
 
 export default studentRoute;
