@@ -19,6 +19,7 @@ let students = Schema({
     motherOccupation: {type: String, trim: true},
     phoneNumber: { type: Number, trim: true },
     alternetPhoneNumber: { type: Number, trim: true },
+    religion:{type: String, trim: true},
     addressOne: { type: String, trim: true },
     addressTwo: { type: String, trim: true },
     country: { type: String, default: "India"},
