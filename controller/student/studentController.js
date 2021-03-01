@@ -13,8 +13,8 @@ var fs = require('fs');
 
 
 const signUp = async (req, res) => {
-    const { firstName, lastName, email, phoneNumber, alternetPhoneNumber, dob, gender, classId, fatherFirstName, fatherLastName, montherFirstName, montherLastName, fatherOccupation, motherOccupation, addressOne, addressTwo, city, zipcode} = req.body; // destructuring 
-    if (!firstName || !lastName || !phoneNumber || !dob || !gender || !classId  || !fatherFirstName || !fatherLastName || !montherFirstName  || !montherLastName || !fatherOccupation || !addressOne || !city || !zipcode){ 
+    const { firstName, lastName, email, phoneNumber, alternetPhoneNumber, dob, gender, classId, fatherFirstName, fatherLastName, montherFirstName, montherLastName, fatherOccupation, motherOccupation, religion,addressOne, addressTwo, city, zipcode} = req.body; // destructuring 
+    if (!firstName || !lastName || !phoneNumber || !dob || !gender || !classId  || !fatherFirstName || !fatherLastName || !montherFirstName  || !montherLastName || !fatherOccupation || !addressOne || !religion || !city || !zipcode){ 
         return responseHandler(res, 400, "Bad request")
     }
     try {
@@ -54,7 +54,7 @@ const studentInfo = async (req, res) => {
     let user = await userModel.findById({ _id: info }, { __v: 0, password: 0, createdAt: 0, updatedAt: 0})
     if(!user)return responseHandler(res, 400, "Bad Request")
     const  userId  = req.params.id; // destructuring 
-    var result =  await studentModel.findById({ _id: userId }, { __v: 0, password: 0, createdAt: 0, updatedAt: 0})
+    var result =  await studentModel.findById({ _id: userId }, { __v: 0, password: 0})
     if (!result) return responseHandler(res, 404, "Student doesn't Exist.")
     try {
         return responseHandler(res, 200, 'Success',result)       
