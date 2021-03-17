@@ -44,9 +44,9 @@ const classInfo = async (req, res) => {
 
 /**************************Update class *******************/
 const updateClass = async (req, res) => {
-    const {name , registration,security,admission, annual, exam, tuition, computer, transport, dance, miscellaneous, extraActivityClasses , seats}= req.body
+    const {name , registration,security,admission, annual, exam, tuition, computer, dance, miscellaneous, extraActivityClasses , seats}= req.body
     let classId= req.params.id;
-    if(!name || !seats ||  !registration || !security || !admission || !annual || !exam || !tuition || !computer || !transport || !dance || !miscellaneous || !extraActivityClasses)
+    if(!name || !seats)
         return responseHandler(res, 400, "Bad Request.")
     try {
         let info = await verifyJwtToken(req, res)
@@ -59,7 +59,7 @@ const updateClass = async (req, res) => {
         else
         {
             req.body.classFee={
-                registration: registration, security: security, admission: admission, annual: annual, exam:exam, tuition:tuition, computer:computer, transport:transport, dance:dance , miscellaneous:miscellaneous, extraActivityClasses:extraActivityClasses
+                registration: (registration!= null ? registration : 0), security: (security!= null ? security : 0), admission:(admission!= null ? admission : 0), annual:(annual!= null ? annual : 0), exam:(exam!= null ? exam : 0), tuition:(tuition!= null ? tuition : 0), computer:(computer!= null ? computer : 0), dance: (dance!= null ? dance : 0), miscellaneous:(miscellaneous!= null ? miscellaneous : 0), extraActivityClasses:(extraActivityClasses!= null ? extraActivityClasses : 0)
             }
             await classesModel.findByIdAndUpdate({ _id: classId},{ $set: { name: name, seats: seats, classFee: req.body.classFee,  updatedBy: info } }) //update the class data
              return responseHandler(res, 200, "Class updated successfully")

@@ -18,8 +18,6 @@ let classes = Schema({
         dance: { type: Number, default:0, trim: true},
         miscellaneous: { type: Number, default:0, trim: true},
         extraActivityClasses: {type: Number, default:0, trim: true},
-        arrears: { type: Number, default:0, trim: true},
-        fine: { type: Number, default:0, trim: true},
     },
     createdBy: { type: Schema.Types.ObjectId, trim: true },
     updatedBy: { type: Schema.Types.ObjectId, trim: true },
